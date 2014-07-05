@@ -1,14 +1,12 @@
 
 /*
-First let's demonstrate the problem.
-
-Say we want to fetch information from the internet, and then write all of that information to a file.
+Now lets look at a solution
 
 Step 1: fetch information
 
 Step 2: write information to file
 
-The code below executes step 2 upon completion of step 1.
+The code below executes step 2 upon completion of step.
 */
 
 
