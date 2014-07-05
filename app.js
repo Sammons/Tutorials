@@ -18,16 +18,14 @@ var request = require( 'request' ); /* for getting something from the internet *
 var fs      = require( 'fs' );      /* for writing that file */
 /* http://nodejs.org/api/fs.html */
 
-var scraped_content; /* for storing the web content */
-
 /* who better to scrape than google */
 request( 'http://www.google.com', function (error, response, body) {
   if (!error && response.statusCode == 200) {
-  	/* store the web content for writing to a file */
-  	scraped_content = body;
+  	
+  	/* write the web content to file */
+	fs.writeFile( 'webcontent.html', body );
   }
 })
 
-/* write the web content to file */
-fs.writeFile( 'webcontent.html', scraped_content );
+
 
