@@ -1,8 +1,13 @@
-Tutorials
+Synchronous Execution
 =========
 
-Tutorials intended to be a little more complete than ones found all around the internet
+Sometimes with node you will have a series of things you want to have happen, but you are having difficulties with the async nature of node.
 
-Each tutorial is found in its own branch - so take a look through the branches if you want to see some source!
+For example, if step 3 depends on step 2 being finished, and you having trouble with step 3 executing too soon - then you have found the right tutorial.
 
-The step by step tutorial for each source will be found in the wiki (https://github.com/Sammons/Tutorials/wiki)
+Supplies needed:
+
+*	request Module (`npm install request`)
+*	fs module      (core package, no install needed)
+
+or just run `npm install`
