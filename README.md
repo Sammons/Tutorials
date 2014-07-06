@@ -1,7 +1,7 @@
 Sequential Execution - Node.js Tut.
 =========
 
-Note that this is the stage 1 code version.
+Note that this is the stage 2 code version.
 
 Sometimes with node you will have a series of things you want to have happen, but you are having difficulties with the async nature of node.js.
 
