@@ -20,7 +20,7 @@ var fs = require( 'fs' ); /* for writing that file */
 request( 'http://www.google.com', function (error, response, body) {
   if (!error && response.statusCode == 200) {
   	
-	    /* write the web content to file */
+	/* write the web content to file */
     fs.writeFile( 'webcontent.html', body );
   }
 })

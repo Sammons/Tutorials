@@ -1,0 +1,23 @@
+{
+  "name": "Tutorials",
+  "version": "0.0.0",
+  "description": "node.js tuts",
+  "main": "app.js",
+  "dependencies": {
+    "request": "^2.36.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Sammons/Tutorials.git"
+  },
+  "author": "Ben Sammons",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sammons/Tutorials/issues"
+  },
+  "homepage": "https://github.com/Sammons/Tutorials"
+}
