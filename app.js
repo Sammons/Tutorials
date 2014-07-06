@@ -11,7 +11,6 @@ Step 2: write information to file
 The code below executes step 2 before step 1 has completed.
 */
 
-
 var request = require( 'request' ); /* for getting something from the internet */
 /* Always have the docs handy for a module! https://github.com/mikeal/request */
 
