@@ -1,4 +1,4 @@
-Synchronous Execution - Node.js Tut.
+Sequential Execution - Node.js Tut.
 =========
 
 Sometimes with node you will have a series of things you want to have happen, but you are having difficulties with the async nature of node.js.
