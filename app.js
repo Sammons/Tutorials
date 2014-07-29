@@ -1,8 +1,6 @@
 
 /*
-First let's discuss a few situations.
-
-Consider:
+Situations: 
 
 A situation where we want to execute
 many of one asynchronous 
@@ -15,11 +13,76 @@ but for each one to happen only after the
 previous and we know the order. 
 ( sequential api calls for example)
 
-To demonstrate the situations, we can create a factory
-which produces "pretend" asynchronous functions.
-Each function will execute in a random bounded period of time
+Where are we?
 
+Let's tackle the first situation, we want to issue 20
+pretend text messages to 20 individuals, and if cosmic waves
+interfere we will retry until completed
 */
+
+/* container function for this sample */
+function send_20_text_messages() {
+
+	// array of people to recieve texts
+	// populated with false, when they are all set
+	// to true, we are finished
+	var people = [];
+	for (var i = 0; i < 20; i++) people.push( { id: i, success: false, attempts: 0 } )
+
+	// since we want everyone to be true, and we only retry on failure
+	// we can assume we are done when we have succeeded 20 times
+	var number_successes = 0
+
+	// number of times we have tried to send any message
+	var attempts         = 0
+
+	// the pretend api call, which will return a success object
+	var send_text_message = produce_async_function( { 'status':'success' } )
+
+	// when we fail, try again on the next tick of the event loop
+	var retry = function( person ) {
+		setImmediate(function(){
+			send_text_message( handle_text_response( person ) )
+		})
+	}
+
+	// response handler factory, ensures that the person is
+	// included in the callback's closure
+	var handle_text_response = function( person ) {
+		return function( err, value ) {
+			// count attempts
+			attempts++;
+			person.attempts++
+
+			// retry on the next run of the event loop if failure
+			if ( err ) {
+				retry( person )
+				return;
+			}
+			// if success, set the person to true and
+			// attempt to be completed!
+			if ( value.status === 'success' ) {
+				person.success = true
+				number_successes++
+				if ( number_successes === people.length ) {
+					// show off our success!
+					console.log( 'success! after ', attempts, 'attempts!' )
+					console.log( people )
+				}
+			}
+		}	
+	}
+
+	// issue the first 20 requests, the rest will automatically
+	// be retriggered upon failure
+	for ( var i in people ) {
+		send_text_message( handle_text_response( people[ i ] ) )
+	}
+
+}
+
+/* begin */
+send_20_text_messages()
 
 /*
  This factory takes a return value, and creates a
@@ -27,7 +90,7 @@ Each function will execute in a random bounded period of time
  and upon completion will execute a callback passed to it.
  The callback will take an error and the returnvalue -- this
  function will fail about 30% of the time with a cosmic wave
- error ( the sun is active today ).
+ error ( the sun is active today ). 
 */
 function produce_async_function( returnvalue ) {
 	return function( callback ) {
@@ -35,45 +98,9 @@ function produce_async_function( returnvalue ) {
 			function() {
 				var rval = (function() { return returnvalue })()
 				var success = Math.random()* 10 > 3 ;
-				if ( success ) callback( null, rval );
+				if ( success ) callback( null, rval )
 				else callback( {err: 'cosmic waves'}, null )
 		}, ( function() { return Math.random()*400 } )() )
 	}
 }
 
-/*
-Here is a demonstration of our
-sometimes failing functions in use.
-each iteration of the setInterval
-the counter is ticked, and a new function is 
-generated and executed.
-*/
-var counter = 0
-setInterval(function() {
-	counter++
-	produce_async_function( counter )( function( err, rvalue ){
-		console.log( err, rvalue )
-	} )
-},100)
-
-/* the output looks something like this:
-null 1
-{ err: 'cosmic waves' } null
-null 3
-{ err: 'cosmic waves' } null
-null 5
-null 8
-null 6
-null 7
-null 10
-null 11
-null 9
-{ err: 'cosmic waves' } null
-null 14
-null 13
-{ err: 'cosmic waves' } null
-null 17
-null 16
-{ err: 'cosmic waves' } null
-null 19
-*/
