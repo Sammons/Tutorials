@@ -34,7 +34,7 @@ function produce_async_function( returnvalue ) {
 		setTimeout(
 			function() {
 				var rval = (function() { return returnvalue })()
-				var success = (function() { return Math.random()* 10 > 3 })();
+				var success = Math.random()* 10 > 3 ;
 				if ( success ) callback( null, rval );
 				else callback( {err: 'cosmic waves'}, null )
 		}, ( function() { return Math.random()*400 } )() )
