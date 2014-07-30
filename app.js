@@ -15,74 +15,80 @@ previous and we know the order.
 
 Where are we?
 
-Let's tackle the first situation, we want to issue 20
-pretend text messages to 20 individuals, and if cosmic waves
-interfere we will retry until completed
+let's do the second situation where
+we execute many async functions one right after
+the next.
 */
 
 /* container function for this sample */
-function send_20_text_messages() {
+function send_all_requests() {
 
-	// array of people to recieve texts
-	// populated with false, when they are all set
-	// to true, we are finished
-	var people = [];
-	for (var i = 0; i < 20; i++) people.push( { id: i, success: false, attempts: 0 } )
+	/*
+	pretend async api calls which we wil execute one right after another
+	we are clearly messing with someone here
+	*/
+	var functions = {}
+	functions.api_call_to_get_user_info        = produce_async_function( { name: 'joe',         status: 'identified' } )
+	functions.api_call_to_find_user_address    = produce_async_function( { address: 'STL',      status: 'found'      } )
+	functions.api_call_to_arrest_user          = produce_async_function( {                      status: 'arrested'   } )
+	functions.api_call_to_send_flowers_to_user = produce_async_function( { flower_color: 'red', status: 'delivered'  } )
 
-	// since we want everyone to be true, and we only retry on failure
-	// we can assume we are done when we have succeeded 20 times
-	var number_successes = 0
+	/*
+	to manage executing the functions in order
+	we simply wrap them in a function which knows to call next()
+	and push the bundle into an array.
+	each function is executed, and on success calls next() which
+	executes the next function, until the end of the array
+	*/
+	var current_position_in_sequence = -1;
+	var sequence = []
 
-	// number of times we have tried to send any message
-	var attempts         = 0
-
-	// the pretend api call, which will return a success object
-	var send_text_message = produce_async_function( { 'status':'success' } )
-
-	// when we fail, try again on the next tick of the event loop
-	var retry = function( person ) {
-		setImmediate(function(){
-			send_text_message( handle_text_response( person ) )
-		})
+	/* execute the next function
+	or end the sequential execution because
+	we are done 
+	*/
+	var next = function() {
+		current_position_in_sequence++
+		if ( current_position_in_sequence == sequence.length ) {
+			current_position_in_sequence = -1
+			return
+		}
+		sequence[ current_position_in_sequence ]()
 	}
-
-	// response handler factory, ensures that the person is
-	// included in the callback's closure
-	var handle_text_response = function( person ) {
-		return function( err, value ) {
-			// count attempts
-			attempts++;
-			person.attempts++
-
-			// retry on the next run of the event loop if failure
+	/* a function which returns a handler that will
+	retry to execute the api call if it fails, and will
+	log the status if it succeeds 
+	*/
+	var response_handler_creator = function( func ) {
+		return function( err, response ) { 
 			if ( err ) {
-				retry( person )
+				console.log('fail')
+				setImmediate( function() {
+					func( response_handler_creator( func ) )
+				})
 				return;
 			}
-			// if success, set the person to true and
-			// attempt to be completed!
-			if ( value.status === 'success' ) {
-				person.success = true
-				number_successes++
-				if ( number_successes === people.length ) {
-					// show off our success!
-					console.log( 'success! after ', attempts, 'attempts!' )
-					console.log( people )
-				}
-			}
-		}	
+			console.log( response.status )
+			next()
+		}
 	}
 
-	// issue the first 20 requests, the rest will automatically
-	// be retriggered upon failure
-	for ( var i in people ) {
-		send_text_message( handle_text_response( people[ i ] ) )
+	/* bundle and push each function into the sequence */
+	for (var i in functions) {
+		(function() { 
+			var func = functions[ i ]
+			sequence.push( function() {
+				func( response_handler_creator( func ) )
+			})
+		})()
 	}
 
+	/* begin the sequence! */
+	next()
 }
 
-/* begin */
-send_20_text_messages()
+/* begin the example */
+send_all_requests()
 
 /*
  This factory takes a return value, and creates a
@@ -90,7 +96,7 @@ send_20_text_messages()
  and upon completion will execute a callback passed to it.
  The callback will take an error and the returnvalue -- this
  function will fail about 30% of the time with a cosmic wave
- error ( the sun is active today ). 
+ error ( the sun is active today ).
 */
 function produce_async_function( returnvalue ) {
 	return function( callback ) {
