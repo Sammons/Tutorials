@@ -27,8 +27,8 @@ and we want to stay out of callback hell, of course
 */
 
 /* container function for this sample */
-function begin_A() {
-	var chaining_sequence     = []
+function begin() {
+	var sequence     = []
 
 	/* the first two parameters to pass to all of these functions,
 	the last one is always next */
@@ -38,12 +38,12 @@ function begin_A() {
 	var seq_pos = -1
 	var next = function( ) {
 		seq_pos++
-		if ( seq_pos == chaining_sequence.length ) {
+		if ( seq_pos == sequence.length ) {
 			seq_pos = -1;
 			return
 		}
 		/* call the next function with the params */
-		chaining_sequence[ seq_pos ].call( this, params[0], params[1], next )
+		sequence[ seq_pos ].call( this, params[0], params[1], next )
 	}
 
 	/* add function to the sequence */
