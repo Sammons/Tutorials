@@ -66,4 +66,4 @@ function begin() {
 }
 
 /* begin the example */
-begin_A()
+begin()
